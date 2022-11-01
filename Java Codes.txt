@@ -1,0 +1,187 @@
+EXP 3: WebServices(TOMCAT)
+
+public class addClass
+{
+	public int add (int a, int b)
+	{
+		return a+b;
+	}
+}
+
+============================================================
+
+EXP 4: RMI
+
+FILE 1: Interface
+
+import java.rmi.*;
+
+public interface IHello extends Remote
+{
+	public String message() throws RemoteException;
+}
+
+*************************************************************
+
+FILE 2: Class
+
+import java.rmi.*;
+import java.rmi.server.*;
+
+public class HelloI extends UnicastRemoteObject implements IHello
+{
+	public HelloI() throws RemoteException
+	{
+		
+	}
+	public String message() throws RemoteException
+	{
+		return ("Hello");
+	}
+}
+
+***************************************************************
+
+FILE 3: Class
+
+import java.rmi.*;
+
+public class HelloServer {
+	private static final String host = "localhost";
+	
+	public static void main(String[] args) throws Exception
+	{
+		HelloImpl temp = new HelloImpl();
+		
+		String rmiObjectName = "rmi://" + host + "/Hello";
+		
+		Naming.rebind(rmiObjectName, temp);
+		
+		System.out.println("Binding complete...\n");
+	}
+}
+
+****************************************************************
+
+FILE 4: Class
+
+import java.rmi.ConnectException;
+import java.rmi.Naming;
+
+public class HelloClient
+{
+	private static final String host = "localhost";
+	public static void main(String[] args)
+	{
+		try
+		{
+			IHello greeting_message = (IHello) Naming.lookup("rmi://"+ host + "/Hello");
+			System.out.println("Message received: " +greeting_message.message());
+			}
+		catch (ConnectException conEx)
+		{
+			System.out.println("Unable to connect to server!");
+			System.exit(1);
+			}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+			System.exit(1);
+		}
+	}
+}
+
+start rmiregistry
+java HelloClient.java
+
+===================================================================================================
+
+EXP 5: MIDDLEWARE
+
+FILE 1: Server.java
+
+public class Server implements interfaceCalculator
+{
+	public int add(int a,int b)
+	{
+		return a+b;
+	}
+	public int sub(int a,int b)
+	{
+		return a-b;
+	}
+}
+
+***************************************************************
+
+FILE 2: interfaceCalculator.java         #Interface
+
+public class interfaceCalculator
+{
+	public int add(int a,int b);
+	public int sub(int a,int b);
+}
+
+***************************************************************
+
+FILE 3: Client.java
+
+public class Client {
+	public static void main(String [] args)
+	{
+		interfaceCalculator i=new Server();
+		System.out.println(i.add(12,13));
+		System.out.println(i.sub(12,12));
+	}
+}
+
+=========================================================
+
+EXP 6: Wrapper
+
+FILE 1: Sender.java
+
+import java.net.*;
+import java.util.*;
+
+public class Sender {
+	public static void main(String[] args) throws Exception{
+		Scanner scn=new Scanner(System.in);
+		System.out.println("Enter your Message:");
+		String str=scn.nextLine();
+		
+		DatagramSocket ds=new DatagramSocket();
+		InetAddress ip=InetAddress.getByName("127.0.0.1");
+		DatagramPacket dp=new
+		
+		DatagramPacket(str.getBytes(),str.length(),ip,3000);
+		ds.send(dp);
+		ds.close();
+		System.out.println("Message sent to Receiver"+str);
+	}
+}
+
+****************************************************************
+
+FILE 2: Client.java
+
+import java.net.*;
+
+public class Receiver {
+	public static void main(String[] args) throws Exception{
+		System.out.println("Waiting for Sender");
+		
+		DatagramSocket ds=new DatagramSocket(3000);
+		byte[] buf=new byte[1024];
+		DatagramPacket dp=new DatagramPacket(buf,1024);
+		ds.receive(dp);
+		
+		String str=new String(dp.getData(),0,dp.getLength());
+		System.out.print(str);
+		ds.close();
+		
+		System.out.println("Message Received from Sender");
+		}
+}
+
+======================================================================
